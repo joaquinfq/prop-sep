@@ -1,0 +1,21 @@
+{
+    "name"        : "prop-seps",
+    "version"     : "1.0.0",
+    "description" : "Check, get, set and remove properties from nested objects using any separator.",
+    "repository"  : {
+        "type" : "git",
+        "url"  : "git+https://github.com/joaquinfq/prop-seps.git"
+    },
+    "keywords"    : [
+        "property",
+        "properties",
+        "dot-prop",
+        "set-prop"
+    ],
+    "author"      : "Joaquín Fernández <public@joaquinfernandez.net>",
+    "license"     : "MIT",
+    "bugs"        : {
+        "url" : "https://github.com/joaquinfq/prop-seps/issues"
+    },
+    "homepage"    : "https://github.com/joaquinfq/prop-seps#readme"
+}
