@@ -1,36 +1,36 @@
-function get(segments, value)
+function get(obj, segments)
 {
     let _value;
     if (segments.length)
     {
-        if (value && typeof value === 'object')
+        if (isObject(obj))
         {
             const _key = segments.shift();
-            if (_key in value)
+            if (_key in obj)
             {
-                _value = get(segments, value[_key]);
+                _value = get(obj[_key], segments);
             }
         }
     }
     else
     {
-        _value = value;
+        _value = obj;
     }
 
     return _value;
 }
 
-function has(segments, value, exists = false)
+function has(obj, segments, exists = false)
 {
     if (segments.length)
     {
-        if (value && typeof value === 'object')
+        if (isObject(obj))
         {
             const _key = segments.shift();
-            exists = _key in value;
+            exists = _key in obj;
             if (exists)
             {
-                exists = has(segments, value[_key], exists);
+                exists = has(obj[_key], segments, exists);
             }
         }
         else
@@ -42,24 +42,29 @@ function has(segments, value, exists = false)
     return exists;
 }
 
-function remove(segments, value)
+function isObject(obj)
+{
+    return obj && typeof obj === 'object' && !Array.isArray(obj);
+}
+
+function remove(obj, segments)
 {
     let _result;
     if (segments.length)
     {
-        if (value && typeof value === 'object')
+        if (isObject(obj))
         {
             const _key = segments.shift();
-            if (_key in value)
+            if (_key in obj)
             {
                 if (segments.length)
                 {
-                    _result = remove(segments, value[_key]);
+                    _result = remove(obj[_key], segments);
                 }
                 else
                 {
-                    _result = value[_key];
-                    delete value[_key];
+                    _result = obj[_key];
+                    delete obj[_key];
                 }
             }
         }
@@ -68,27 +73,55 @@ function remove(segments, value)
     return _result;
 }
 
-function set(segments, object, value)
+function set(obj, segments, value)
 {
     const _key = segments.shift();
     if (segments.length)
     {
-        let _value = object[_key];
-        if (!_value || typeof _value !== 'object' || Array.isArray(_value))
+        let _obj = obj[_key];
+        if (!isObject(_obj))
         {
-            _value = object[_key] = {}
+            _obj = obj[_key] = {}
         }
-        set(segments, _value, value);
+        set(_obj, segments, value);
     }
     else if (_key)
     {
-        object[_key] = value;
+        obj[_key] = value;
     }
 }
 
-function splitKey(key, sep)
+function split(key, sep)
 {
-    return String(key).split(sep);
+    if (!sep)
+    {
+        sep = '.';
+    }
+    const _segments = String(key).split(sep);
+    if (key.includes('\\'))
+    {
+        let _index = 0;
+        while (_index < _segments.length)
+        {
+            let _segment = _segments[_index];
+            while (_segment.substr(-1) === '\\')
+            {
+                let _last = _segments.splice(_index + 1, 1).join('') || '';
+                if (_last)
+                {
+                    _last = sep + _last;
+                }
+                _segment = _segments[_index] = _segment.substr(0, _segment.length -1) + _last;
+                if (_index === _segments.length - 1)
+                {
+                    break;
+                }
+            }
+            ++_index;
+        }
+    }
+
+    return _segments;
 }
 
 /**
@@ -98,15 +131,16 @@ module.exports = {
     /**
      * Devuelve el valor de la clave.
      *
+     * @param {Object}  obj    Objeto a manipular.
      * @param {String}  key    Nombre de la clave.
      * @param {*?}      defval Valor a usar si la clave no existe.
      * @param {String?} sep    Separador a usar (`.` por defecto).
      *
      * @return {*} Valor de la clave o `undefined` si no existe.
      */
-    get(key, defval, sep)
+    get(obj, key, defval, sep)
     {
-        const _value = get(splitKey(key, sep));
+        const _value = get(obj, split(key, sep));
 
         return _value === undefined
             ? defval
@@ -115,35 +149,38 @@ module.exports = {
     /**
      * Indica si la clave existe.
      *
+     * @param {Object}  obj Objeto a manipular.
      * @param {String}  key Nombre de la clave. Se puede usar un `.` para separar objectos.
      * @param {String?} sep Separador a usar (`.` por defecto).
      *
      * @return {Boolean} `true` si la clave existe.
      */
-    has(key, sep)
+    has(obj, key, sep)
     {
-        return has(splitKey(key, sep));
+        return has(obj, split(key, sep));
     },
     /**
      * Elimina la clave del objeto.
      *
-     * @param {String} key  Nombre de la clave.
+     * @param {Object}  obj Objeto a manipular.
+     * @param {String}  key Nombre de la clave.
      * @param {String?} sep Separador a usar (`.` por defecto).
      */
-    remove(key, sep)
+    remove(obj, key, sep)
     {
-        return set(splitKey(key, sep), value);
+        return remove(obj, split(key, sep));
     },
     /**
      * Asigna el valor de la clave.
      *
-     * @param {String} key   Nombre de la clave.
-     * @param {*?}     value Valor a asignar a la clave.
-     * @param {String?} sep  Separador a usar (`.` por defecto).
+     * @param {Object}  obj   Objeto a manipular.
+     * @param {String}  key   Nombre de la clave.
+     * @param {*}       value Valor a asignar a la clave.
+     * @param {String?} sep   Separador a usar (`.` por defecto).
      */
-    set(key, value, sep)
+    set(obj, key, value, sep)
     {
-        return set(splitKey(key, sep), value);
+        return set(obj, split(key, sep), value);
     }
 };
 
