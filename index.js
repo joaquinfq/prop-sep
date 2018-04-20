@@ -98,7 +98,6 @@ function split(key, sep)
         sep = '.';
     }
     const _segments = String(key).split(sep);
-    console.log(key);
     if (key.includes('\\'))
     {
         let _index = 0;

@@ -1,6 +1,6 @@
 {
     "name": "prop-sep",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Check, get, set and remove properties from nested objects using any separator.",
     "repository": {
         "type": "git",
