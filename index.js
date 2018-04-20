@@ -44,7 +44,7 @@ function has(obj, segments, exists = false)
 
 function isObject(obj)
 {
-    return obj && typeof obj === 'object' && !Array.isArray(obj);
+    return obj && typeof obj === 'object';
 }
 
 function remove(obj, segments)
@@ -98,6 +98,7 @@ function split(key, sep)
         sep = '.';
     }
     const _segments = String(key).split(sep);
+    console.log(key);
     if (key.includes('\\'))
     {
         let _index = 0;

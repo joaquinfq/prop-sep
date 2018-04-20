@@ -106,5 +106,16 @@ testGetHas('a.b\\.c', { });
 testGetHas('a', { ['b.c'] : {}});
 testRemove('a.b\\.c', {});
 testGetHas('a', { });
+
+//-------------------------------------
+// Pruebas: Acceso a un array
+//-------------------------------------
+obj.Array = {
+    a : [ 100, 200 ]
+};
+testGetHas('Array', obj.Array);
+testGetHas('Array.a', obj.Array.a);
+testGetHas('Array.a.0', obj.Array.a[0]);
+testGetHas('Array.a.1', obj.Array.a[1]);
 //
 console.log('Total aserciones: %d', numAssertions);
