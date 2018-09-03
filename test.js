@@ -2,9 +2,9 @@ const assert      = require('assert');
 const propsep     = require('./index');
 let numAssertions = 0;
 
-function test(actual, expected)
+function test(actual, expected, method = 'deepEqual')
 {
-    assert.deepEqual(actual, expected);
+    assert[method](actual, expected);
     ++numAssertions;
 }
 
@@ -18,6 +18,13 @@ function testGetHas(path, expected)
     test(propsep.get(obj, path), undefined);
 }
 
+function testMethods(Class, expected)
+{
+    ['get', 'has', 'remove', 'set'].forEach(
+        name => test(typeof Class[name], expected)
+    );
+}
+
 function testRemove(path, expected)
 {
     testGetHas(path, expected);
@@ -25,9 +32,9 @@ function testRemove(path, expected)
     test(propsep.get(obj, path), undefined);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------
 // Inicio de las pruebas
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------
 const obj = {};
 const c   = 5.3;
 const d   = undefined;
@@ -36,9 +43,9 @@ const g   = null;
 const e   = { f, g };
 const b   = { c, d, e };
 const a   = { b };
-//-------------------------------------
+//-----------------------------------------------------------------
 // Pruebas: set
-//-------------------------------------
+//-----------------------------------------------------------------
 propsep.set(obj, '', 5.3);
 test(obj, {});
 propsep.set(obj, 'a.b.c', c);
@@ -58,9 +65,9 @@ test(
 );
 propsep.set(obj, 'a.b.e.g', g);
 test(obj, { a });
-//-------------------------------------
+//-----------------------------------------------------------------
 // Pruebas: get/has
-//-------------------------------------
+//-----------------------------------------------------------------
 testGetHas('', undefined);
 testGetHas('a', a);
 testGetHas('a.b', b);
@@ -69,9 +76,9 @@ testGetHas('a.b.d', d);
 testGetHas('a.b.e', e);
 testGetHas('a.b.e.f', f);
 testGetHas('a.b.e.g', g);
-//-------------------------------------
+//-----------------------------------------------------------------
 // Pruebas: remove
-//-------------------------------------
+//-----------------------------------------------------------------
 // Eliminamos g
 testRemove('a.b.e.g', g);
 testGetHas('a.b', { c, d, e : { f } });
@@ -93,9 +100,9 @@ testGetHas('a', {});
 // Eliminamos a
 testRemove('a', {});
 test(obj, {});
-//-------------------------------------
+//-----------------------------------------------------------------
 // Pruebas: Escapando el separador
-//-------------------------------------
+//-----------------------------------------------------------------
 propsep.set(obj, 'a.b\\.c.d.e\\.f\\.g', d);
 test(obj['a']['b.c']['d']['e.f.g'], d);
 testRemove('a.b\\.c.d.e\\.f\\.g', d);
@@ -106,10 +113,9 @@ testGetHas('a.b\\.c', { });
 testGetHas('a', { ['b.c'] : {}});
 testRemove('a.b\\.c', {});
 testGetHas('a', { });
-
-//-------------------------------------
+//-----------------------------------------------------------------
 // Pruebas: Acceso a un array
-//-------------------------------------
+//-----------------------------------------------------------------
 obj.Array = {
     a : [ 100, 200 ]
 };
@@ -117,5 +123,39 @@ testGetHas('Array', obj.Array);
 testGetHas('Array.a', obj.Array.a);
 testGetHas('Array.a.0', obj.Array.a[0]);
 testGetHas('Array.a.1', obj.Array.a[1]);
+//-----------------------------------------------------------------
+// Pruebas: attach - Métodos de instancia
+//-----------------------------------------------------------------
+let Test = class {};
+let sut  = new Test();
+testMethods(Test.prototype, 'undefined');
+testMethods(sut, 'undefined');
+
+propsep.attach(Test, true, true);
+testMethods(Test.prototype, 'function');
+testMethods(sut, 'function');
+sut.set('a.b.c', c);
+test(sut, { a : { b : { c } } });
+test(sut.get('a.b.c'), c);
+
+propsep.detach(Test);
+testMethods(Test.prototype, 'undefined');
+testMethods(sut, 'undefined');
+//-----------------------------------------------------------------
+// Pruebas: attach - Métodos estáticos
+//-----------------------------------------------------------------
+Test = class {};
+sut  = new Test();
+testMethods(Test.prototype, 'undefined');
+testMethods(sut, 'undefined');
+
+propsep.attach(Test, false, true);
+testMethods(Test, 'function');
+testMethods(sut.constructor, 'function');
+
+propsep.detach(Test, false, true);
+testMethods(Test, 'undefined');
+testMethods(sut.constructor, 'undefined');
+
 //
 console.log('Total aserciones: %d', numAssertions);
