@@ -2,20 +2,77 @@ const assert      = require('assert');
 const propsep     = require('./index');
 let numAssertions = 0;
 
+class TestGetterSetter
+{
+    constructor(config = {})
+    {
+        this._a = null;
+        Object.assign(this, config);
+    }
+
+    get a()
+    {
+        return this._a;
+    }
+
+    set a(value)
+    {
+        this._a = new TestGetterSetterB(value);
+    }
+}
+
+class TestGetterSetterB
+{
+    constructor(config = {})
+    {
+        this._b = null;
+        Object.assign(this, config);
+    }
+
+    get b()
+    {
+        return this._b;
+    }
+
+    set b(value)
+    {
+        this._b = new TestGetterSetterC(value);
+    }
+}
+
+class TestGetterSetterC
+{
+    constructor(config = {})
+    {
+        this._c = null;
+        Object.assign(this, config);
+    }
+
+    get c()
+    {
+        return this._c;
+    }
+
+    set c(value)
+    {
+        this._c = value;
+    }
+}
+
 function test(actual, expected, method = 'deepEqual')
 {
     assert[method](actual, expected);
     ++numAssertions;
 }
 
-function testGetHas(path, expected)
+function testGetHas(path, expected, item = obj)
 {
-    test(propsep.has(obj, path), path !== '');
-    test(propsep.get(obj, path), expected);
+    test(propsep.has(item, path), path !== '');
+    test(propsep.get(item, path), expected);
     // Agregamos un path que no exista para probar `undefined`.
     path += '.qwe';
-    test(propsep.has(obj, path), false);
-    test(propsep.get(obj, path), undefined);
+    test(propsep.has(item, path), false);
+    test(propsep.get(item, path), undefined);
 }
 
 function testMethods(Class, expected)
@@ -156,6 +213,17 @@ testMethods(sut.constructor, 'function');
 propsep.detach(Test, false, true);
 testMethods(Test, 'undefined');
 testMethods(sut.constructor, 'undefined');
-
-//
+//-----------------------------------------------------------------
+// Verificamos objetos con propiedades que usan getter/setters.
+//-----------------------------------------------------------------
+sut  = new TestGetterSetter();
+propsep.set(sut, 'a.b.c', c);
+testGetHas('a.b.c', c, sut);
+propsep.set(sut, 'a.b.d', d);
+testGetHas('a.b.d', d, sut);
+propsep.set(sut, 'a.b.e.f', f);
+testGetHas('a.b.e.f', f, sut);
+propsep.set(sut, 'a.b.e.g', g);
+testGetHas('a.b.e.g', g, sut);
+//-----------------------------------------------------------------
 console.log('Total aserciones: %d', numAssertions);

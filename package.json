@@ -1,6 +1,6 @@
 {
-    "name": "prop-sep",
-    "version": "2.1.0",
+    "name": "@jf/prop-sep",
+    "version": "3.0.0",
     "description": "Check, get, set and remove properties from nested objects using any separator.",
     "repository": {
         "type": "git",

@@ -89,7 +89,10 @@ function set(obj, segments, value)
         let _obj = obj[_key];
         if (!isObject(_obj))
         {
-            _obj = obj[_key] = {};
+            // Hay que hacerlo en 2 pasos por si el objeto tiene un getter y un setter.
+            // De esta manera, primero se llama al setter y luego al getter.
+            obj[_key] = {};
+            _obj      = obj[_key];
         }
         set(_obj, segments, value);
     }
@@ -201,6 +204,7 @@ const methods = {
     set(obj, key, value, sep)
     {
         set(obj, split(key, sep), value);
+        //
         return obj;
     }
 };

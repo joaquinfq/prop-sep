@@ -1,11 +1,11 @@
-# prop-sep [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+# @jf/prop-sep [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 
-[![npm install prop-sep](https://nodei.co/npm/prop-sep.png?compact=true)](https://npmjs.org/package/prop-sep/)
+[![npm install @jf/prop-sep](https://nodei.co/npm/@jf/prop-sep.png?compact=true)](https://npmjs.org/package/@jf/prop-sep/)
 
 Check, get, set and remove properties from nested objects using any separator.
 
 ```javascript
-const propSep = require('prop-sep');
+const propSep = require('@jf/prop-sep');
 const obj     = {};
 propSep.set(obj, 'a.b.c', 5);
 console.log(obj); // { a : { b : { c : 5 } } }
@@ -16,7 +16,7 @@ Also, you can attach and detach this methods to objects and classes.
 As instance methods:
 
 ```javascript
-const propSep = require('prop-sep');
+const propSep = require('@jf/prop-sep');
 
 class Class {}
 propSep.attach(Class);
@@ -29,7 +29,7 @@ console.log(obj); // { a : { b : { c : 5 } } }
 As class methods:
 
 ```javascript
-const propSep = require('prop-sep');
+const propSep = require('@jf/prop-sep');
 
 class Class {}
 class Other extends Class {}
